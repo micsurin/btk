@@ -60,8 +60,14 @@ class HIDConnection:
         print('type: ' + str(io_type))
         data = os.read(fd, BUF_SIZE)
         if len(data) == 0:
-            print('someone disconnected')
             # I get this when we disconnect
+            print('someone disconnected')
+            #TODO: A disconnecting device will leave dangling watchers on the
+            # input events, whose callbacks will try to write to a bluetooth
+            # socket no longer available. It would be better to tear down the
+            # connection from RequestDisconnection(), but it never gets called
+            # Exiting is a temporary hack until this is solved
+            sys.exit(1)
             return False
 
         handshake = HIDP_TRANS_HANDSHAKE

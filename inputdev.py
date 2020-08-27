@@ -82,7 +82,7 @@ class Mouse(Device):
 
     def ev_cb(self, dev, io_type):
         event = dev.read_one()
-        if event.type in [
+        if event.type and event.type in [
                 ev.ecodes.EV_REL,
                 ev.ecodes.EV_ABS,
                 ev.ecodes.EV_KEY
@@ -144,7 +144,12 @@ class Keyboard(Device):
 
     def update_state(self):
         event = self.event
-        evdev_code = ev.ecodes.KEY[event.code]
+        try:
+            evdev_code = ev.ecodes.KEY[event.code]
+        except KeyError:
+            print("Unknown event code (%d)" % event.code)
+            return
+
         modkey_element = keymap.modkey(evdev_code)
         if modkey_element > 0:
             # Need to set one of the modifier bits
